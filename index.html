@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Roleta Meteorológica</title>
+  <style>
+    body {
+      background: radial-gradient(circle, #699cd6, #1b0955, #4d1466);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding-top: 40px;
+    }
+    h1 {
+      font-size: 30px;
+    }
+    canvas {
+      margin: 20px auto;
+      display: block;
+      background: #ff7ddf;
+      border-radius: 50%;
+    }
+    .seta {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      margin: 0 auto;
+      margin-top: -0px;
+      transform: rotate(180deg);
+    }
+    input {
+      margin: 5px;
+      padding: 6px;
+      width: 80px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 18px;
+      background-color: rgb(255, 255, 255);
+      color: rgb(0, 0, 0);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #resultado {
+      font-size: 22px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌌 Roleta da Chuva de Meteoros</h1>
+
+  <label>Eventos no ano (n):</label>
+  <input type="number" id="n" min="1" max="100"><br>
+  <label>Total de possibilidades (m):</label>
+  <input type="number" id="m" min="1" max="100"><br>
+  <button onclick="iniciarRoleta()">Girar Roleta 🔄</button>
+
+  <div class="seta"></div>
+  <canvas id="roleta" width="300" height="300"></canvas>
+
+  <div id="resultado"></div>
+
+  <script>
+    const canvas = document.getElementById("roleta");
+    const ctx = canvas.getContext("2d");
+    let anguloAtual = 0;
+
+   function desenharRoleta(n, m) {
+  const raio = canvas.width / 2;
+  const cx = raio, cy = raio;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Gera uma lista com m valores: true para chuva, false para não chuva
+  const setores = Array(m).fill(false);
+  for (let i = 0; i < n; i++) setores[i] = true;
+
+  // Embaralha os setores para espalhar a chuva
+  for (let i = setores.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [setores[i], setores[j]] = [setores[j], setores[i]];
+  }
+
+  for (let i = 0; i < m; i++) {
+  const angInicio = (i / m) * 2 * Math.PI;
+  const angFim = ((i + 1) / m) * 2 * Math.PI;
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, raio + 1000, angInicio, angFim); // pequeno +1 para suavizar a borda
+  ctx.closePath();
+
+  ctx.fillStyle = setores[i] ? "#FFD700" : "#DB3EB1"; // amarelo ouro ou rosa escuro (#C71585)
+;
+  ctx.fill();
+}
+
+}
+
+
+
+    function iniciarRoleta() {
+      const n = parseInt(document.getElementById("n").value);
+      const m = parseInt(document.getElementById("m").value);
+      if (!n || !m || n > m) {
+        alert("Valores inválidos: n deve ser menor ou igual a m.");
+        return;
+      }
+
+      desenharRoleta(n, m);
+      const sorteio = Math.floor(Math.random() * m);
+      const anguloPorSetor = 360 / m;
+      const anguloFinal = 360 * 5 + (360 - sorteio * anguloPorSetor - anguloPorSetor / 2); // 5 voltas + ajuste
+      const roleta = canvas;
+
+      // Animação da rotação
+      roleta.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
+      roleta.style.transform = `rotate(${anguloFinal}deg)`;
+
+      // Resultado após giro
+      setTimeout(() => {
+        const resultado = sorteio < n
+          ? "🌠 Sorte! Você viu uma chuva de meteoros!"
+          : "🌌 Nenhuma chuva visível nesse sorteio.";
+        document.getElementById("resultado").textContent = resultado;
+      }, 4000);
+    }
+  </script>
+
+</body>
+</html>
+
