@@ -64,49 +64,50 @@
 
   <div class="seta"></div>
   <canvas id="roleta" width="300" height="300"></canvas>
-
   <div id="resultado"></div>
+
+  <!-- 🎵 Áudio ambiente e som de clique -->
+  <audio id="somClick" src="click.mp3"></audio>
+  <audio id="musica" src="ambiente.mp3" muted loop></audio>
+
 
   <script>
     const canvas = document.getElementById("roleta");
     const ctx = canvas.getContext("2d");
-    let anguloAtual = 0;
 
-   function desenharRoleta(n, m) {
-  const raio = canvas.width / 2;
-  const cx = raio, cy = raio;
+    function desenharRoleta(n, m) {
+      const musica = document.getElementById("musica");
+      musica.muted = false;
+      musica.play();
+      const raio = canvas.width / 2;
+      const cx = raio, cy = raio;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Gera uma lista com m valores: true para chuva, false para não chuva
-  const setores = Array(m).fill(false);
-  for (let i = 0; i < n; i++) setores[i] = true;
+      const setores = Array(m).fill(false);
+      for (let i = 0; i < n; i++) setores[i] = true;
 
-  // Embaralha os setores para espalhar a chuva
-  for (let i = setores.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [setores[i], setores[j]] = [setores[j], setores[i]];
-  }
+      for (let i = setores.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [setores[i], setores[j]] = [setores[j], setores[i]];
+      }
 
-  for (let i = 0; i < m; i++) {
-  const angInicio = (i / m) * 2 * Math.PI;
-  const angFim = ((i + 1) / m) * 2 * Math.PI;
+      for (let i = 0; i < m; i++) {
+        const angInicio = (i / m) * 2 * Math.PI;
+        const angFim = ((i + 1) / m) * 2 * Math.PI;
 
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, raio + 1000, angInicio, angFim); // pequeno +1 para suavizar a borda
-  ctx.closePath();
-
-  ctx.fillStyle = setores[i] ? "#FFD700" : "#DB3EB1"; // amarelo ouro ou rosa escuro (#C71585)
-;
-  ctx.fill();
-}
-
-}
-
-
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, raio + 1000, angInicio, angFim);
+        ctx.closePath();
+        ctx.fillStyle = setores[i] ? "#FFD700" : "#DB3EB1";
+        ctx.fill();
+      }
+    }
 
     function iniciarRoleta() {
+      
+
       const n = parseInt(document.getElementById("n").value);
       const m = parseInt(document.getElementById("m").value);
       if (!n || !m || n > m) {
@@ -114,17 +115,20 @@
         return;
       }
 
+      // Toca o som agudo
+      const som = document.getElementById("somClick");
+      som.currentTime = 0;
+      som.play();
+
       desenharRoleta(n, m);
+
       const sorteio = Math.floor(Math.random() * m);
       const anguloPorSetor = 360 / m;
-      const anguloFinal = 360 * 5 + (360 - sorteio * anguloPorSetor - anguloPorSetor / 2); // 5 voltas + ajuste
-      const roleta = canvas;
+      const anguloFinal = 360 * 5 + (360 - sorteio * anguloPorSetor - anguloPorSetor / 2);
 
-      // Animação da rotação
-      roleta.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
-      roleta.style.transform = `rotate(${anguloFinal}deg)`;
+      canvas.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
+      canvas.style.transform = `rotate(${anguloFinal}deg)`;
 
-      // Resultado após giro
       setTimeout(() => {
         const resultado = sorteio < n
           ? "🌠 Sorte! Você viu uma chuva de meteoros!"
@@ -136,4 +140,3 @@
 
 </body>
 </html>
-
